@@ -6,8 +6,13 @@
 set -e
 
 PKG_NAME="optwifi"
-PKG_VERSION="0.9.0"
-PKG_RELEASE="1"
+
+# Source version information
+if [ ! -f VERSION ]; then
+	echo "ERROR: VERSION file not found"
+	exit 1
+fi
+. ./VERSION
 # For architecture-independent packages (shell scripts only)
 # OpenWrt accepts: 'all', 'noarch', or '*'
 # Using 'all' as it's most widely supported across OpenWrt versions
