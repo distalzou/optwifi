@@ -1,7 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-or-later
 # optwifi - DHCP-triggered WiFi configuration
-# This script is sourced by /usr/share/udhcpc/default.script
+# This script is sourced by /lib/netifd/dhcp.script
 # Environment contains DHCP options as opt<number> variables
 
 # Only process if enabled
