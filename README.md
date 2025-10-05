@@ -135,12 +135,10 @@ uci commit optwifi
 ## Security
 
 - **Disabled by default** - Requires explicit user configuration
-- **Secure hex decoding** - Pure POSIX implementation with strict code/data separation
 - **Input validation**:
   - SSID length (0-32 bytes per 802.11 spec)
   - Hex format validation (even length, valid hex digits)
   - Control character rejection (0x00-0x1F, 0x7F)
-- **No shell injection** - Network data never evaluated by shell
 - **Comprehensive logging** - All actions and errors logged
 - **UTF-8 support** - International SSIDs supported
 
@@ -150,7 +148,6 @@ Planned features:
 - WPA password configuration via DHCP
 - Per-interface SSID control
 - Additional wireless parameters (channel, encryption mode, etc.)
-- Enhanced input validation and sanitization
 
 ## Troubleshooting
 
