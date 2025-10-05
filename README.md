@@ -14,29 +14,29 @@ Automatically configure WiFi parameters via DHCP options on OpenWrt routers.
 
 ## Installation
 
-### Build the Package
+### Download the Package
+
+Download the latest `.ipk` file from the [Releases page](https://github.com/distalzou/optwifi/releases).
+
+### Install on Your Router
+
+```bash
+# Copy to router
+scp optwifi_*.ipk root@192.168.1.1:/tmp/
+
+# Install
+ssh root@192.168.1.1 'opkg install /tmp/optwifi_*.ipk'
+```
+
+### Building from Source (Optional)
+
+If you want to build from source instead of using a release:
 
 ```bash
 ./build-package.sh
 ```
 
-This creates `build/optwifi_<version>-<release>_all.ipk`
-
-The version is read from the `VERSION` file. To bump versions for releases, use:
-```bash
-./release.sh patch    # For bug fixes (0.9.0 → 0.9.1)
-./release.sh minor    # For new features (0.9.0 → 0.10.0)
-./release.sh show     # Display current version
-```
-
-### Install on Your Router
-
-```bash
-scp build/optwifi_*.ipk root@192.168.1.1:/tmp/
-ssh root@192.168.1.1 'opkg install /tmp/optwifi_*.ipk'
-```
-
-See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.
+See [INSTALL.md](INSTALL.md) for detailed installation instructions, building from source, and troubleshooting.
 
 ## Configuration
 
