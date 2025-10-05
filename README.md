@@ -77,7 +77,7 @@ option custom-ssid code 240 = text;
 
 host myrouter {
     hardware ethernet aa:bb:cc:dd:ee:ff;
-    option dhcp-parameter-request-list 240;
+    fixed-address 192.168.1.10;
     option custom-ssid "MySSID";
 }
 ```
