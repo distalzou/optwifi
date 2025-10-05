@@ -13,7 +13,7 @@ This package enables dynamic WiFi SSID configuration via DHCP options on OpenWrt
 - ✅ **SSID validation** - Length checks (0-32 bytes per 802.11 spec)
 - ✅ **Smart updates** - Only reloads WiFi if SSID actually changes (performance optimization)
 - ✅ **Logging levels** - error/info/debug with proper hierarchy
-- ✅ **OpenWrt package** - Complete Makefile for building .ipk files
+- ✅ **OpenWrt package** - Standalone build script for .ipk files
 - ✅ **Documentation** - README.md with examples and troubleshooting
 - ✅ **Test suite** - Automated syntax and functional validation
 
@@ -21,7 +21,7 @@ This package enables dynamic WiFi SSID configuration via DHCP options on OpenWrt
 
 ```
 optwifi/
-├── Makefile                                    # OpenWrt package build
+├── build-package.sh                            # Standalone package builder
 ├── README.md                                   # User documentation
 ├── CLAUDE.md                                   # This file - project context
 ├── files/                                      # Files to install
@@ -150,7 +150,7 @@ Quality software that provides real value without overengineering:
 2. **Run tests** - `sh tests/test_runner.sh`
 3. **Review** - Code review focusing on shell best practices
 4. **Test manually** - On actual OpenWrt device if available
-5. **Build package** - `make package/optwifi/compile` (when in buildroot)
+5. **Build package** - `./build-package.sh`
 
 ## Notes
 - Using DHCP option numbers in "private use" range (224-254)

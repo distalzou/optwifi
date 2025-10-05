@@ -5,7 +5,7 @@
 set -e
 
 PKG_NAME="optwifi"
-PKG_VERSION="1.0.0"
+PKG_VERSION="0.9.0"
 PKG_RELEASE="1"
 # For architecture-independent packages (shell scripts only)
 # OpenWrt accepts: 'all', 'noarch', or '*'
