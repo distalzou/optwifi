@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # optwifi utility functions
 
 # UCI helper - get value with default

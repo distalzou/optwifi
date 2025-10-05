@@ -90,7 +90,7 @@ uci commit network
 - **Disabled by default** - Explicit user configuration required
 - **Code/data separation principle** - Network data never evaluated by shell
 - **Input validation** - SSID length, format checking
-- **TODO**: Enhanced hex decoding security (planned next step)
+- **Secure hex decoding** - Pure POSIX implementation with strict code/data separation
 
 ### Performance Optimizations
 - **UCI called efficiently** - Config loaded once per DHCP event

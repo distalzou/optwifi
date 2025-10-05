@@ -174,7 +174,9 @@ For detailed information about the test framework, see [tests/README.md](tests/R
 
 ## License
 
-MIT License
+GPL-2.0-or-later
+
+This project is licensed under the GNU General Public License v2.0 or later, matching the OpenWrt ecosystem. See the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 

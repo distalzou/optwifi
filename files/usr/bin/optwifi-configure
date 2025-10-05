@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # optwifi-configure - Helper script to configure optwifi
 # Simplifies setup by configuring both optwifi and network settings in one command
 

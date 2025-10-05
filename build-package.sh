@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Standalone package builder for optwifi
 # Creates an installable .ipk package for OpenWrt
 
