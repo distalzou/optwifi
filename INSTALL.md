@@ -6,6 +6,23 @@
 - POSIX-compatible shell (sh, bash, ash, etc.)
 - Standard utilities: `tar`, `mktemp`, `du` (available on all Linux systems)
 
+### Version Management
+
+The package version is managed through the `VERSION` file and `release.sh` script:
+
+```bash
+# View current version
+./release.sh show
+
+# For development: just build (version stays the same)
+./build-package.sh
+
+# For releases: bump version first
+./release.sh patch    # 0.9.0 → 0.9.1 (bug fixes)
+./release.sh minor    # 0.9.0 → 0.10.0 (new features)
+./release.sh major    # 0.9.0 → 1.0.0 (breaking changes)
+```
+
 ### Build Steps
 
 1. **Run the build script:**
@@ -20,8 +37,9 @@
    - Create the `.ipk` package
 
 3. **Output:**
-   - Package file: `build/optwifi_1.0.0-1_all.ipk`
+   - Package file: `build/optwifi_<version>-<release>_all.ipk` (e.g., `optwifi_0.9.0-1_all.ipk`)
    - Size: ~5-8 KB
+   - Version is read from the `VERSION` file
 
 ## Installing on OpenWrt
 
@@ -29,20 +47,20 @@
 
 1. **Copy package to router:**
    ```bash
-   scp build/optwifi_1.0.0-1_all.ipk root@192.168.1.1:/tmp/
+   scp build/optwifi_*.ipk root@192.168.1.1:/tmp/
    ```
 
 2. **SSH into router and install:**
    ```bash
    ssh root@192.168.1.1
-   opkg install /tmp/optwifi_1.0.0-1_all.ipk
+   opkg install /tmp/optwifi_*.ipk
    ```
 
 ### Method 2: One-Line Install
 
 ```bash
-scp build/optwifi_1.0.0-1_all.ipk root@192.168.1.1:/tmp/ && \
-ssh root@192.168.1.1 'opkg install /tmp/optwifi_1.0.0-1_all.ipk'
+scp build/optwifi_*.ipk root@192.168.1.1:/tmp/ && \
+ssh root@192.168.1.1 'opkg install /tmp/optwifi_*.ipk'
 ```
 
 ## Post-Installation Configuration
@@ -178,13 +196,13 @@ rm /etc/config/optwifi
 **Solution:** Install with architecture override (package contains only shell scripts, works on any architecture):
 ```bash
 # Install with --force-architecture flag
-opkg install --force-architecture /tmp/optwifi_1.0.0-1_all.ipk
+opkg install --force-architecture /tmp/optwifi_*.ipk
 ```
 
 **Alternative:** Add 'all' architecture to opkg permanently:
 ```bash
 echo "arch all 1" >> /etc/opkg.conf
-opkg install /tmp/optwifi_1.0.0-1_all.ipk
+opkg install /tmp/optwifi_*.ipk
 ```
 
 ### Dependency errors
