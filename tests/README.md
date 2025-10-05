@@ -93,14 +93,9 @@ setup_test_env
 cleanup_test_env
 ```
 
-## CI Integration
+## Package Building
 
-Tests can be run as part of package build:
+Run tests before building the package:
 ```bash
-make package/optwifi/compile V=s
-```
-
-Or run tests before building:
-```bash
-sh tests/test_runner.sh && make package/optwifi/compile
+sh tests/test_runner.sh && ./build-package.sh
 ```
