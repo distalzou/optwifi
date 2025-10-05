@@ -35,15 +35,13 @@ optwifi/
 │   └── usr/lib/optwifi/
 │       ├── util.sh                            # Logging, UCI helpers, hex decoding
 │       └── core.sh                            # SSID validation, update logic
-├── tests/                                      # Test suite
-│   ├── test_runner.sh                         # Main test orchestrator
-│   ├── test_syntax.sh                         # Syntax validation
-│   ├── test_simple.sh                         # Functional tests
-│   ├── mocks/
-│   │   └── test_helpers.sh                    # Test utilities
-│   └── README.md                              # Test documentation
-└── current/                                    # Original proof-of-concept
-    └── etc/udhcpc.user                        # Initial working implementation
+└── tests/                                      # Test suite
+    ├── test_runner.sh                         # Main test orchestrator
+    ├── test_syntax.sh                         # Syntax validation
+    ├── test_simple.sh                         # Functional tests
+    ├── mocks/
+    │   └── test_helpers.sh                    # Test utilities
+    └── README.md                              # Test documentation
 ```
 
 ## Running Tests
