@@ -24,9 +24,12 @@ Download the latest `.ipk` file from the [Releases page](https://github.com/dist
 # Copy to router
 scp optwifi_*.ipk root@192.168.1.1:/tmp/
 
-# Install
-ssh root@192.168.1.1 'opkg install /tmp/optwifi_*.ipk'
+# SSH into router and install
+ssh root@192.168.1.1
+opkg install /tmp/optwifi_*.ipk
 ```
+
+The installer will display setup instructions when complete.
 
 ### Building from Source (Optional)
 
