@@ -1,0 +1,34 @@
+{
+  "name": "Ubuntu Development",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "developer",
+      "uid": "1000",
+      "gid": "1000",
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "upgradePackages": false
+    }
+  },
+  
+  "remoteUser": "developer",
+    
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "anthropic.claude-code"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  },
+  
+  "postCreateCommand": "echo 'Container ready!' && node --version"
+}

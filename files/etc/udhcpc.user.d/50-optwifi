@@ -1,0 +1,16 @@
+#!/bin/sh
+# optwifi - DHCP-triggered WiFi configuration
+# This script is sourced by /usr/share/udhcpc/default.script
+# Environment contains DHCP options as opt<number> variables
+
+# Only process if enabled
+[ -f /usr/lib/optwifi/util.sh ] || exit 0
+. /usr/lib/optwifi/util.sh
+
+is_enabled || exit 0
+
+# Load core functions
+. /usr/lib/optwifi/core.sh
+
+# Process DHCP option for SSID update
+process_dhcp_ssid

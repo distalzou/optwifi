@@ -1,0 +1,24 @@
+# Build output
+build/
+
+# Test output
+tests/mocks/*.tmp
+*.tmp
+
+# Editor files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+openwrt-sdk-*/
+
+# OpenWrt SDK downloads
+*.tar.xz
+*.tar.gz
+
+# Package files
+*.ipk

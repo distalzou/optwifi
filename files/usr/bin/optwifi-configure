@@ -1,0 +1,143 @@
+#!/bin/sh
+# optwifi-configure - Helper script to configure optwifi
+# Simplifies setup by configuring both optwifi and network settings in one command
+
+show_usage() {
+	cat <<EOF
+Usage: optwifi-configure <command> [options]
+
+Commands:
+  enable-ssid <option> <interface>    Enable SSID configuration via DHCP option
+  disable                             Disable optwifi
+  status                              Show current configuration
+
+Examples:
+  optwifi-configure enable-ssid 240 lan    # Enable SSID from option 240 on lan
+  optwifi-configure disable                # Disable optwifi
+  optwifi-configure status                 # Show current settings
+
+Notes:
+  - DHCP option should be in private range (224-254)
+  - Common interfaces: lan, wan, wan6
+  - After configuration, restart network: /etc/init.d/network restart
+  - Future: enable-password, enable-channel, etc.
+EOF
+}
+
+show_status() {
+	echo "=== optwifi Configuration ==="
+	echo ""
+
+	local enabled=$(uci -q get optwifi.settings.enabled)
+	local option=$(uci -q get optwifi.settings.ssid_dhcp_option)
+	local log_level=$(uci -q get optwifi.settings.log_level)
+
+	echo "Enabled: ${enabled:-0}"
+	echo "SSID DHCP Option: ${option:-not set}"
+	echo "Log Level: ${log_level:-info}"
+	echo ""
+
+	echo "=== Network Interface DHCP Options ==="
+	echo ""
+	uci show network | grep -E '\.reqopts=' || echo "No interfaces requesting custom DHCP options"
+	echo ""
+}
+
+enable_ssid() {
+	local dhcp_option="$1"
+	local interface="$2"
+
+	# Validate inputs
+	if [ -z "$dhcp_option" ] || [ -z "$interface" ]; then
+		echo "Error: Missing required arguments"
+		echo ""
+		show_usage
+		exit 1
+	fi
+
+	# Validate option number
+	if ! echo "$dhcp_option" | grep -qE '^[0-9]+$'; then
+		echo "Error: DHCP option must be a number"
+		exit 1
+	fi
+
+	if [ "$dhcp_option" -lt 224 ] || [ "$dhcp_option" -gt 254 ]; then
+		echo "Warning: DHCP option $dhcp_option is outside private range (224-254)"
+		read -p "Continue anyway? (y/N) " confirm
+		case "$confirm" in
+			y|Y) ;;
+			*) echo "Aborted."; exit 1 ;;
+		esac
+	fi
+
+	# Check if interface exists
+	if ! uci -q get "network.$interface" >/dev/null 2>&1; then
+		echo "Error: Network interface '$interface' not found in UCI config"
+		echo "Available interfaces:"
+		uci show network | grep "=interface" | cut -d. -f2 | cut -d= -f1
+		exit 1
+	fi
+
+	echo "Configuring SSID via DHCP option $dhcp_option..."
+
+	# Configure optwifi
+	uci set optwifi.settings.enabled=1
+	uci set optwifi.settings.ssid_dhcp_option="$dhcp_option"
+	uci commit optwifi
+
+	echo "✓ Enabled SSID configuration with DHCP option $dhcp_option"
+
+	# Configure network interface
+	uci set "network.$interface.reqopts=$dhcp_option"
+	uci commit network
+
+	echo "✓ Configured $interface to request DHCP option $dhcp_option"
+	echo ""
+	echo "Configuration complete!"
+	echo ""
+	echo "Next steps:"
+	echo "  1. Restart network: /etc/init.d/network restart"
+	echo "  2. Configure your DHCP server to send option $dhcp_option with SSID"
+	echo "  3. Monitor logs: logread -f | grep optwifi"
+	echo ""
+}
+
+disable_optwifi() {
+	echo "Disabling optwifi..."
+
+	uci set optwifi.settings.enabled=0
+	uci commit optwifi
+
+	echo "✓ optwifi disabled"
+	echo ""
+	echo "Note: Network interface DHCP option requests were not changed."
+	echo "To remove them manually, edit /etc/config/network"
+	echo ""
+}
+
+# Main command handling
+case "$1" in
+	enable-ssid)
+		enable_ssid "$2" "$3"
+		;;
+	enable)
+		# Backwards compatibility - treat 'enable' as 'enable-ssid'
+		echo "Note: 'enable' is deprecated, use 'enable-ssid' instead"
+		enable_ssid "$2" "$3"
+		;;
+	disable)
+		disable_optwifi
+		;;
+	status)
+		show_status
+		;;
+	help|--help|-h|"")
+		show_usage
+		;;
+	*)
+		echo "Error: Unknown command '$1'"
+		echo ""
+		show_usage
+		exit 1
+		;;
+esac

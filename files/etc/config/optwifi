@@ -1,0 +1,5 @@
+
+config optwifi 'settings'
+	option enabled '0'
+	option log_level 'info'
+	# option ssid_dhcp_option '240'
