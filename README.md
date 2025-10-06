@@ -2,11 +2,15 @@
 
 Automatically configure WiFi parameters via DHCP options on OpenWrt routers.
 
+## Use case
+
+Manage multiple bridging APs across different sites. By delivering both network and WiFi settings via DHCP, you can maintain a stock of pre-configured APs that work automatically at any site without per-site configuration. The only prerequisite is registering each AP's MAC address with the site's DHCP server when adding it to inventory.
+
 ## Features
 
 - **DHCP option-based configuration**: Receive WiFi settings from your DHCP server
 - **Off by default**: Disabled unless explicitly configured
-- **Configurable logging**: Track all configuration changes
+- **Configurable logging**: Track all configuration changes when they occur
 
 ## Current Capabilities
 
