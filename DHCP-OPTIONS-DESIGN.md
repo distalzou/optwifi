@@ -17,7 +17,7 @@ optwifi supports multiple WiFi parameters via DHCP options. **Option numbers are
 | Parameter | Purpose | Format | Max Size | `optwifi-configure` command |
 |-----------|---------|--------|----------|----------------------------|
 | **SSID** | Global SSID | Plain text | 32 bytes | `enable-ssid <option> <interface>` |
-| **Password** | Global WPA password | Plain text | 63 chars | `enable-password <option> <interface>` (planned) |
+| **Password** | Global WPA password | Plain text | 63 chars | `enable-password <option> <interface>` |
 | **Per-radio overrides** | SSID/password per radio | `radioN\|key=value;...` | 255 bytes | `enable-overrides <option> <interface>` (planned) |
 | **Channel config** | Frequency/channel per radio | `radioN\|key=value;...` | 255 bytes | `enable-channels <option> <interface>` (planned) |
 
@@ -30,12 +30,10 @@ Single SSID and password across all radios.
 
 **OpenWrt setup:**
 ```bash
-# Use option 240 for SSID (you could use any number 224-254)
+# Use option 240 for SSID and 241 for password (you could use any numbers 224-254)
 optwifi-configure enable-ssid 240 lan
+optwifi-configure enable-password 241 lan
 /etc/init.d/network restart
-
-# Future: enable password
-# optwifi-configure enable-password 241 lan
 ```
 
 **DHCP server config:**
@@ -58,7 +56,7 @@ Different SSID for 2.4GHz and 5GHz radios.
 **OpenWrt setup:**
 ```bash
 optwifi-configure enable-ssid 240 lan
-# optwifi-configure enable-password 241 lan         # planned
+optwifi-configure enable-password 241 lan
 # optwifi-configure enable-overrides 242 lan        # planned
 /etc/init.d/network restart
 ```
@@ -150,7 +148,7 @@ radioN|key1=value1|key2=value2;radioM|key3=value3
 ## Implementation Status
 
 - ✅ **Global SSID** - Fully implemented (`optwifi-configure enable-ssid`)
-- ⬜ **Global password** - Planned (`optwifi-configure enable-password`)
+- ✅ **Global password** - Fully implemented (`optwifi-configure enable-password`)
 - ⬜ **Per-radio overrides** - Planned (`optwifi-configure enable-overrides`)
 - ⬜ **Channel config** - Planned (`optwifi-configure enable-channels`)
 

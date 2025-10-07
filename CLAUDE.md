@@ -8,10 +8,12 @@ This package enables dynamic WiFi SSID configuration via DHCP options on OpenWrt
 ### Completed Features
 - ✅ **Modular architecture** - Clean separation: util.sh, core.sh, DHCP hook
 - ✅ **UCI configuration** - `/etc/config/optwifi` with safe defaults (disabled by default)
-- ✅ **Configurable DHCP option** - User sets `ssid_dhcp_option` via UCI
+- ✅ **Configurable DHCP options** - User sets option numbers via UCI
+- ✅ **SSID configuration** - Global SSID via DHCP option
+- ✅ **Password configuration** - Global WPA password via DHCP option
 - ✅ **Error handling** - Comprehensive validation and logging throughout
-- ✅ **SSID validation** - Length checks (0-32 bytes per 802.11 spec)
-- ✅ **Smart updates** - Only reloads WiFi if SSID actually changes (performance optimization)
+- ✅ **Validation** - SSID length (0-32 bytes), password length (8-63 chars)
+- ✅ **Smart updates** - Only reloads WiFi if values actually change
 - ✅ **Logging levels** - error/info/debug with proper hierarchy
 - ✅ **OpenWrt package** - Standalone build script for .ipk files
 - ✅ **Documentation** - README.md with examples and troubleshooting
@@ -119,9 +121,10 @@ uci commit network
   - Proper error logging on decode failures
 
 ### Future Enhancements
-- **WPA password configuration** via separate DHCP option
-- **Multiple wireless parameters** (channel, encryption mode, etc.)
-- **Per-interface control** - Whitelist/blacklist which radios to update
+- **Per-radio overrides** - Different SSID/password per radio via additional DHCP options
+- **Channel configuration** - Set wireless channels via DHCP
+- **Multiple wireless parameters** (encryption mode, bandwidth, etc.)
+- **WiFi reload optimization** - Single reload when multiple options change
 - **Enhanced testing** - Integration tests with full mocking
 - **Debouncing** - Handle rapid DHCP renewals gracefully
 

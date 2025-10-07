@@ -40,6 +40,45 @@ validate_ssid() {
 	return 0
 }
 
+# Validate password
+# Input: password string
+# Output: 0 if valid, 1 if invalid
+validate_password() {
+	local password="$1"
+	local len
+
+	# Check if empty
+	if [ -z "$password" ]; then
+		log_error "Password validation failed: empty password"
+		return 1
+	fi
+
+	# Check length (8-63 characters per WPA2/WPA3 spec)
+	len=${#password}
+	if [ "$len" -lt 8 ]; then
+		log_error "Password validation failed: length $len is less than 8 characters"
+		return 1
+	fi
+	if [ "$len" -gt 63 ]; then
+		log_error "Password validation failed: length $len exceeds 63 characters"
+		return 1
+	fi
+
+	# Check for control characters (0x00-0x1F, 0x7F)
+	# These can cause issues with UCI, logging, and display
+	# Using case pattern matching to detect control chars (including embedded newlines)
+	# This works in pure POSIX shell without external dependencies
+	case "$password" in
+		*[[:cntrl:]]*)
+			log_error "Password validation failed: contains control characters"
+			return 1
+			;;
+	esac
+
+	log_debug "Password validation passed: length $len characters"
+	return 0
+}
+
 # Update all wireless SSIDs
 # Input: new SSID value
 # Output: 0 on success, 1 on failure
@@ -110,6 +149,76 @@ EOF
 	return 0
 }
 
+# Update all wireless passwords
+# Input: new password value
+# Output: 0 on success, 1 on failure
+update_wireless_password() {
+	local new_password="$1"
+	local line key_path current_password
+	local paths_to_update=""
+
+	# Validate password first
+	if ! validate_password "$new_password"; then
+		return 1
+	fi
+
+	log_debug "Checking if password update needed"
+
+	# Parse 'uci show wireless' output once - lines like: wireless.@wifi-iface[0].key='CurrentPassword'
+	while IFS= read -r line; do
+		# Extract path and value from lines like "path='value'"
+		key_path="${line%%=*}"
+		current_password="${line#*=}"
+		# Remove quotes from value
+		current_password="${current_password#\'}"
+		current_password="${current_password%\'}"
+
+		if [ "$current_password" != "$new_password" ]; then
+			log_debug "$key_path needs update"
+			paths_to_update="$paths_to_update $key_path"
+		else
+			log_debug "$key_path already up to date"
+		fi
+	done <<EOF
+$(uci show wireless | grep '\.key=')
+EOF
+
+	# If nothing needs updating, we're done
+	if [ -z "$paths_to_update" ]; then
+		log_info "All passwords already up to date, no update needed"
+		return 0
+	fi
+
+	log_info "Updating wireless password"
+
+	# Update only the paths that need it
+	for key_path in $paths_to_update; do
+		if uci set "$key_path=$new_password"; then
+			log_debug "Set $key_path"
+		else
+			log_error "Failed to set $key_path"
+			return 1
+		fi
+	done
+
+	# Commit changes
+	if ! uci commit wireless; then
+		log_error "Failed to commit wireless configuration"
+		return 1
+	fi
+
+	log_info "Successfully updated password(s), reloading WiFi"
+
+	# Reload WiFi
+	if ! wifi reload; then
+		log_error "WiFi reload failed"
+		return 1
+	fi
+
+	log_info "WiFi reload completed successfully"
+	return 0
+}
+
 # Process DHCP option for SSID
 # Called from DHCP hook with environment variables
 process_dhcp_ssid() {
@@ -150,4 +259,46 @@ process_dhcp_ssid() {
 
 	# Update wireless configuration
 	update_wireless_ssid "$decoded_ssid"
+}
+
+# Process DHCP option for password
+# Called from DHCP hook with environment variables
+process_dhcp_password() {
+	local opt_num opt_value decoded_password
+
+	# Get configured option number for password
+	opt_num=$(get_password_dhcp_option)
+
+	# If no option configured, exit silently
+	if [ -z "$opt_num" ]; then
+		log_debug "No password DHCP option configured, skipping"
+		return 0
+	fi
+
+	# Build variable name like "opt241"
+	local var_name="opt${opt_num}"
+
+	# Get value from environment (indirect reference via eval)
+	eval "opt_value=\$$var_name"
+
+	# If option not present in DHCP response, exit silently
+	if [ -z "$opt_value" ]; then
+		log_debug "Password DHCP option $opt_num not present in response"
+		return 0
+	fi
+
+	log_debug "Received password DHCP option $opt_num"
+
+	# Decode hex to ASCII
+	decoded_password=$(hex_to_ascii "$opt_value")
+
+	if [ -z "$decoded_password" ]; then
+		log_error "Failed to decode password hex value"
+		return 1
+	fi
+
+	log_info "Decoded password from DHCP option $opt_num"
+
+	# Update wireless configuration
+	update_wireless_password "$decoded_password"
 }

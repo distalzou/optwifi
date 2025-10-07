@@ -15,6 +15,7 @@ Manage multiple bridging APs across different sites. By delivering both network 
 ## Current Capabilities
 
 - Update WiFi SSID from DHCP option (applies to all radios)
+- Update WiFi WPA password from DHCP option (applies to all radios)
 
 ## Installation
 
@@ -51,17 +52,20 @@ See [INSTALL.md](INSTALL.md) for detailed installation instructions, building fr
 
 Use the helper script to configure everything in one command:
 
+**SSID and password:**
 ```bash
 optwifi-configure enable-ssid 240 lan
+optwifi-configure enable-password 241 lan
 /etc/init.d/network restart
 ```
 
-This configures optwifi to use DHCP option 240 for SSID and sets the lan interface to request it. (DHCP options 224-254 are for private use.)
+This configures optwifi to use DHCP option 240 for SSID and option 241 for password, and sets the lan interface to request both options. (DHCP options 224-254 are for private use.)
 
 ### Manual Configuration
 
 If you prefer to configure manually:
 
+**SSID only:**
 ```bash
 # Enable optwifi and set DHCP option
 uci set optwifi.settings.enabled=1
@@ -74,25 +78,45 @@ uci commit network
 /etc/init.d/network restart
 ```
 
+**SSID and password:**
+```bash
+# Enable optwifi and set DHCP options
+uci set optwifi.settings.enabled=1
+uci set optwifi.settings.ssid_dhcp_option=240
+uci set optwifi.settings.password_dhcp_option=241
+uci commit optwifi
+
+# Configure network interface to request both options
+uci set network.lan.reqopts='240 241'
+uci commit network
+/etc/init.d/network restart
+```
+
 ### 3. Configure your DHCP server
 
-Send option 240 with hex-encoded SSID. Examples:
+Send DHCP options with hex-encoded values. Examples:
 
-**ISC DHCP Server:**
+**ISC DHCP Server (SSID and password):**
 ```
 option custom-ssid code 240 = text;
+option custom-password code 241 = text;
 
 host myrouter {
     hardware ethernet aa:bb:cc:dd:ee:ff;
     fixed-address 192.168.1.10;
     option custom-ssid "MySSID";
+    option custom-password "MySecurePassword123";
 }
 ```
 
-**dnsmasq:**
+**dnsmasq (SSID and password):**
 ```
 dhcp-option=240,"MySSID"
+dhcp-option=241,"MySecurePassword123"
 ```
+
+**SSID only (without password):**
+If you only want to configure SSID and leave password unchanged, simply omit the password option from your DHCP server configuration.
 
 ## Configuration Options
 
@@ -100,18 +124,21 @@ Edit `/etc/config/optwifi`:
 
 ```
 config optwifi 'settings'
-    option enabled '0'              # 0=disabled, 1=enabled
-    option log_level 'info'         # 'error', 'info', or 'debug'
-    option ssid_dhcp_option '240'   # DHCP option number for SSID
+    option enabled '0'                  # 0=disabled, 1=enabled
+    option log_level 'info'             # 'error', 'info', or 'debug'
+    option ssid_dhcp_option '240'       # DHCP option number for SSID
+    option password_dhcp_option '241'   # DHCP option number for password
 ```
 
 ## How It Works
 
-1. Router receives DHCP response with configured option
+1. Router receives DHCP response with configured options
 2. `udhcpc` hook script (`/etc/udhcpc.user.d/50-optwifi`) is triggered
-3. If enabled, optwifi decodes the hex-encoded value
-4. SSID is validated (length, format)
-5. All wireless SSIDs are updated via UCI
+3. If enabled, optwifi decodes the hex-encoded values
+4. Values are validated:
+   - SSID: length (0-32 bytes), no control characters
+   - Password: length (8-63 characters per WPA spec), no control characters
+5. Wireless configuration is updated via UCI (only if values changed)
 6. WiFi is reloaded with new configuration
 
 ## Logging
@@ -141,17 +168,21 @@ uci commit optwifi
 - **Disabled by default** - Requires explicit user configuration
 - **Input validation**:
   - SSID length (0-32 bytes per 802.11 spec)
+  - Password length (8-63 characters per WPA2/WPA3 spec)
   - Hex format validation (even length, valid hex digits)
   - Control character rejection (0x00-0x1F, 0x7F)
-- **Comprehensive logging** - All actions and errors logged
-- **UTF-8 support** - International SSIDs supported
+- **Secure hex decoding** - Strict code/data separation prevents injection attacks
+- **No password logging** - Password values never written to logs
+- **Comprehensive logging** - All actions and errors logged (except password values)
+- **UTF-8 support** - International SSIDs and passwords supported
 
 ## Future Enhancements
 
 Planned features:
-- WPA password configuration via DHCP
-- Per-interface SSID control
-- Additional wireless parameters (channel, encryption mode, etc.)
+- Per-radio overrides (different SSID/password per radio)
+- Channel configuration via DHCP
+- Additional wireless parameters (encryption mode, bandwidth, etc.)
+- WiFi reload optimization (single reload when multiple options change)
 
 ## Troubleshooting
 
@@ -178,7 +209,8 @@ sh tests/test_runner.sh
 Tests validate:
 - Shell script syntax
 - Function definitions
-- SSID validation logic
+- SSID and password validation logic
+- Secure hex decoding
 - Code quality checks
 
 For detailed information about the test framework, see [tests/README.md](tests/README.md).

@@ -94,6 +94,7 @@ cat > "${CONTROL_DIR}/postinst" <<'EOF'
     echo ""
     echo "Quick setup:"
     echo "  optwifi-configure enable-ssid 240 lan"
+    echo "  optwifi-configure enable-password 241 lan"
     echo "  /etc/init.d/network restart"
     echo ""
     echo "For help: optwifi-configure help"

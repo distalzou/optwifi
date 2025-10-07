@@ -45,6 +45,11 @@ get_ssid_dhcp_option() {
 	uci_get optwifi.settings.ssid_dhcp_option ""
 }
 
+# Get configured DHCP option number for password
+get_password_dhcp_option() {
+	uci_get optwifi.settings.password_dhcp_option ""
+}
+
 # Decode hex string to ASCII
 # Input: hex string like "4d795353494400"
 # Output: decoded string

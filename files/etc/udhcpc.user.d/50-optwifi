@@ -13,5 +13,6 @@ is_enabled || exit 0
 # Load core functions
 . /usr/lib/optwifi/core.sh
 
-# Process DHCP option for SSID update
+# Process DHCP options for SSID and password updates
 process_dhcp_ssid
+process_dhcp_password
